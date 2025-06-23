@@ -8,8 +8,7 @@ import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-
+import axios from "axios";
 
 const loginSchema = z.object({
   email: z
@@ -54,10 +53,10 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
       });
-  
+
       const { token, user: userData } = res.data;
       login(token);
-  
+
       if (userData.role === "admin") {
         toast.success("Admin login successful");
       } else {
@@ -69,14 +68,14 @@ export default function LoginPage() {
           err.response?.data?.message || "Invalid credentials";
         setServerError(errorMessage);
         toast.error(errorMessage);
-  
+
         if (
           err.response?.data?.errors &&
           Array.isArray(err.response.data.errors)
         ) {
           err.response.data.errors.forEach(
             (error: { path: string[]; message: string }) => {
-              setFormError(error.path[0], {
+              setFormError(error.path[0] as keyof LoginFormData, {
                 type: "server",
                 message: error.message,
               });

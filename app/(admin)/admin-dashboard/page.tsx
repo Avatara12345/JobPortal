@@ -305,7 +305,14 @@ export default function AdminDashboard() {
         <CreateJobForm
           onClose={() => setState(prev => ({...prev, showCreateForm: false}))}
           onSuccess={handleAction.jobSuccess}
-          initialData={state.editingJob}
+          initialData={
+            state.editingJob
+              ? {
+                  ...state.editingJob,
+                  id: String(state.editingJob.id),
+                }
+              : null
+          }
         />
       )}
 

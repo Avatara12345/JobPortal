@@ -67,11 +67,10 @@ export default function SignupPage() {
         setServerError(errorMessage);
         toast.error(errorMessage);
   
-        // ✅ Use proper type instead of `any`
         const fieldErrors = err.response?.data?.errors;
         if (Array.isArray(fieldErrors)) {
           fieldErrors.forEach((error: { path: string[]; message: string }) => {
-            setError(error.path[0], {
+            setError(error.path[0] as keyof SignupFormData, {
               type: "server",
               message: error.message,
             });
@@ -84,7 +83,6 @@ export default function SignupPage() {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">

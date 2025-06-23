@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import api from "../../../../lib/axios";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../../../context/AuthContext";
+import axios from "axios";
 
 export default function ApplyJobPage() {
   const { jobId } = useParams();
@@ -15,11 +16,12 @@ export default function ApplyJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!user) {
       toast.error("Please login to apply for jobs");
       return;
     }
-
+  
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -39,10 +41,14 @@ export default function ApplyJobPage() {
       );
       toast.success("Application submitted successfully!");
       router.push("/user-dashboard/appliedJobs");
-    } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Failed to submit application"
-      );
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        toast.error(
+          err.response?.data?.message || "Failed to submit application"
+        );
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

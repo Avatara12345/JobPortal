@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "react-hot-toast";
 import api from "../lib/axios";
+import axios from "axios";
+
 
 const jobSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -98,8 +100,7 @@ const jobSchema = z.object({
   
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-  
-      // First validate the form
+    
       const validationResult = jobSchema.safeParse(formData);
       if (!validationResult.success) {
         const newErrors: Record<string, string> = {};
@@ -112,40 +113,32 @@ const jobSchema = z.object({
         toast.error("Please fix the form errors");
         return;
       }
-  
+    
       setIsSubmitting(true);
-  
+    
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Authentication required");
-        const validatedData = validationResult.data; 
+    
+        const validatedData = validationResult.data;
+    
         if (initialData?.id) {
-     
-          await api.put(
-            `/jobs/updatejob/${initialData.id}`,
-            validatedData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          await api.put(`/jobs/updatejob/${initialData.id}`, validatedData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
           toast.success("Job updated successfully!");
         } else {
-          // Create new job
-          await api.post(
-            "/jobs/createjob",
-            validatedData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          
+          await api.post("/jobs/createjob", validatedData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
           toast.success("Job created successfully!");
+    
           setFormData({
             title: "",
             description: "",
@@ -154,14 +147,19 @@ const jobSchema = z.object({
             salary_range: "",
           });
         }
-        
+    
         onSuccess();
         onClose();
         router.refresh();
-      } catch (err) {
-        const errorMessage =
-          err.response?.data?.message || err.message || "Failed to process job";
-          
+      } catch (err: unknown) {
+        let errorMessage = "Failed to process job";
+    
+        if (axios.isAxiosError(err)) {
+          errorMessage = err.response?.data?.message || errorMessage;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+    
         toast.error(errorMessage);
       } finally {
         setIsSubmitting(false);
