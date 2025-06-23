@@ -15,6 +15,9 @@ export default function ApplyJobPage() {
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
 
+  console.log("Rendering ApplyJobPage");
+console.log("Params:", useParams());
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
