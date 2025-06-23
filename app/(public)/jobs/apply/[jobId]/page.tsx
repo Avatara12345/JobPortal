@@ -39,7 +39,7 @@ export default function ApplyJobPage() {
       );
       toast.success("Application submitted successfully!");
       router.push("/user-dashboard/appliedJobs");
-    } catch (err: any) {
+    } catch (err) {
       toast.error(
         err.response?.data?.message || "Failed to submit application"
       );

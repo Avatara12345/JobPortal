@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import {toast, Toaster } from 'react-hot-toast'
 import "react-toastify/dist/ReactToastify.css";
@@ -23,6 +23,7 @@ export default function EditProfile() {
 
   const [error, setError] = useState("");
     const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null);
+    console.log(resumePreviewUrl)
 
   useEffect(() => {
     const user = getUserFromLocalStorage();
@@ -56,13 +57,13 @@ export default function EditProfile() {
           const resumeUrl = `https://job-portal-rp7w.onrender.com/${userData.resume}`;
           setResumePreviewUrl(resumeUrl);
         }
-      } catch (err) {
+      } catch  {
         setError("Failed to load profile data. Please refresh the page.");
       }
     };
 
     fetchUserData();
-  },[]);
+  },[router]);
 
   useEffect(() => {
     const user = getUserFromLocalStorage();
@@ -125,10 +126,14 @@ export default function EditProfile() {
       setTimeout(() => {
         router.push("/user-dashboard");
       }, 2500);
-    } catch (err: any) {
-      console.error("Error updating profile:", err);
-      toast.error(err.response?.data?.message || "Update failed.");
-    } finally {
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Failed to fetch jobs");
+        } else {
+          setError("Failed to fetch jobs");
+        }
+        toast.error("Failed to fetch jobs");
+      } finally {
       setLoading(false);
     }
   };

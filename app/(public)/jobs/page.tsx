@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 import api from "../../lib/axios";
 import { toast } from "react-hot-toast";
@@ -48,10 +48,15 @@ export default function JobsPage() {
         setJobs(res.data.jobs);
         setTotalJobs(res.data.totolJobs);
         setTotalPages(Math.ceil(res.data.totolJobs / jobsPerPage));
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch jobs");
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Failed to fetch jobs");
+        } else {
+          setError("Failed to fetch jobs");
+        }
         toast.error("Failed to fetch jobs");
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };

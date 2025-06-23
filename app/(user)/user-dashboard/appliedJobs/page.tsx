@@ -38,7 +38,7 @@ export default function AppliedJobs() {
       if (!user || (user.role !== 'user' && user.role !== 'admin')) {
         router.push('/login');
       }
-    }, []);
+    }, [router]);
 
     if (loading) {
         return <Loading/>

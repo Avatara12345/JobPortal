@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import CreateJobForm from "@/app/components/CreateJobForm";
 import ConfirmDeleteModal from "@/app/components/ConfirmDeleteModal";
 import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight } from "react-icons/fi";
+import { useCallback } from "react";
 
 interface Job {
   id: number;
@@ -31,39 +32,44 @@ export default function AdminDashboard() {
     isDeleting: false
   });
 
-  const fetchJobs = async () => {
+
+  const fetchJobs = useCallback(async () => {
     try {
-      setState(prev => ({...prev, loading: true}));
+      setState(prev => ({ ...prev, loading: true }));
       const token = localStorage.getItem("token") || "";
-      
+  
       const res = await fetch(
         `https://job-portal-rp7w.onrender.com/api/jobs/alljobs?search=${state.searchTerm}&page=${state.currentPage}&limit=10`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-
+  
       if (!res.ok) throw new Error("Failed to fetch jobs");
-      
+  
       const data = await res.json();
       if (!data.jobs) throw new Error("Invalid data format");
-
+  
       setState(prev => ({
         ...prev,
         jobs: data.jobs,
         totalJobs: data.totolJobs,
         totalPages: Math.ceil(data.totolJobs / 10),
-        loading: false
+        loading: false,
       }));
     } catch (error) {
+      console.log(error);
       toast.error("Failed to load jobs");
-      setState(prev => ({...prev, loading: false}));
+      setState(prev => ({ ...prev, loading: false }));
     }
-  };
-
+  }, [state.currentPage, state.searchTerm]);
   useEffect(() => {
     const user = getUserFromLocalStorage();
     if (!user || user.role !== "admin") router.push("/login");
     else fetchJobs();
-  }, [state.currentPage, state.searchTerm]);
+  }, [state.currentPage, state.searchTerm, fetchJobs, router]);
 
   const handleAction = {
     search: (e: React.FormEvent) => {
@@ -99,6 +105,7 @@ export default function AdminDashboard() {
         toast.success("Job deleted successfully!");
         fetchJobs();
       } catch (error) {
+        console.log(error)
         toast.error("Failed to delete job");
       } finally {
         setState(prev => ({...prev, isDeleting: false, selectedJobId: null}));
@@ -121,13 +128,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto  py-4 max-w-7xl">
-      {/* Header */}
+ 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
         <p className="text-gray-500 mt-2">Manage all job postings in one place</p>
       </div>
 
-      {/* Search and Create */}
+
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <form onSubmit={handleAction.search} className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -149,7 +156,7 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stats Cards */}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {[
           { title: "Total Jobs", value: state.totalJobs, bg: "bg-indigo-100", text: "text-indigo-800" },
@@ -163,7 +170,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Jobs Table */}
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="overflow-x-auto">
           <table className="w-full">

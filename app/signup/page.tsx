@@ -7,6 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import axios, { } from "axios";
 
 const signupSchema = z.object({
   name: z
@@ -54,23 +55,30 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupFormData) => {
     setIsSubmitting(true);
+  
     try {
-       await api.post("/auth/signup", data);
+      await api.post("/auth/signup", data);
       toast.success("Signup successful! You can now log in.");
       router.push("/login");
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Signup failed";
-      setServerError(errorMessage);
-      toast.error(errorMessage);
-
-      // Handle field-specific errors from server
-      if (err.response?.data?.errors) {
-        err.response.data.errors.forEach((error: any) => {
-          setError(error.path[0], {
-            type: "server",
-            message: error.message,
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorMessage =
+          err.response?.data?.message || "Signup failed";
+        setServerError(errorMessage);
+        toast.error(errorMessage);
+  
+        // ✅ Use proper type instead of `any`
+        const fieldErrors = err.response?.data?.errors;
+        if (Array.isArray(fieldErrors)) {
+          fieldErrors.forEach((error: { path: string[]; message: string }) => {
+            setError(error.path[0], {
+              type: "server",
+              message: error.message,
+            });
           });
-        });
+        }
+      } else {
+        toast.error("Something went wrong. Please try again.");
       }
     } finally {
       setIsSubmitting(false);

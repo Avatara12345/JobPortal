@@ -1,8 +1,8 @@
-// app/users/page.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiEdit2, FiTrash2, FiUserPlus, FiRefreshCw } from 'react-icons/fi';
+import {  FiRefreshCw } from 'react-icons/fi';
 import { getUserFromLocalStorage } from '@/app/utils/auth';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/axios';
@@ -45,10 +45,11 @@ export default function UsersPage() {
   };
   useEffect(() => {
     const user = getUserFromLocalStorage();
-    if (!user || (user.role !== 'admin')) {
+    if (!user || user.role !== 'admin') {
       router.push('/login');
     }
-  }, []);
+  }, [router]);
+  
   useEffect(() => {
     fetchUsers();
   }, []);

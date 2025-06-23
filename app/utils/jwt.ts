@@ -4,8 +4,7 @@ export function decodeJWT(token: string): { id: number; role: string; iat: numbe
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
       return decoded;
-    } catch (error) {
+    } catch  {
       return null;
     }
   }
-    

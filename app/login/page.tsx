@@ -9,6 +9,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+
+
 const loginSchema = z.object({
   email: z
     .string()
@@ -52,27 +54,37 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
       });
+  
       const { token, user: userData } = res.data;
-
-      login(token)
-
+      login(token);
+  
       if (userData.role === "admin") {
         toast.success("Admin login successful");
       } else {
         toast.success("User login successful");
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Invalid credentials";
-      setServerError(errorMessage);
-      toast.error(errorMessage);
-
-      if (err.response?.data?.errors) {
-        err.response.data.errors.forEach((error: any) => {
-          setFormError(error.path[0], {
-            type: "server",
-            message: error.message,
-          });
-        });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorMessage =
+          err.response?.data?.message || "Invalid credentials";
+        setServerError(errorMessage);
+        toast.error(errorMessage);
+  
+        if (
+          err.response?.data?.errors &&
+          Array.isArray(err.response.data.errors)
+        ) {
+          err.response.data.errors.forEach(
+            (error: { path: string[]; message: string }) => {
+              setFormError(error.path[0], {
+                type: "server",
+                message: error.message,
+              });
+            }
+          );
+        }
+      } else {
+        toast.error("Something went wrong. Please try again.");
       }
     }
   };
