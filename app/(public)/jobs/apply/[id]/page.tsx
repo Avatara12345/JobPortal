@@ -7,7 +7,8 @@ import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
 
 export default function ApplyJobPage() {
-  const { jobId } = useParams();
+  const { id } = useParams();
+  
   const router = useRouter();
   const { user } = useAuth();
   const [resumeUrl, setResumeUrl] = useState("");
@@ -28,7 +29,7 @@ export default function ApplyJobPage() {
       await api.post(
         "/job/application",
         {
-          job_id: jobId,
+          job_id:id,
           resume_url: resumeUrl,
           cover_letter: coverLetter,
         },
