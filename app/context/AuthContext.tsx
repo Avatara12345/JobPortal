@@ -21,9 +21,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token =  localStorage.getItem("token");
     if (token) {
-      const decoded = decodeJWT(token);
+      const decoded = decodeJWT(token); 
       if (decoded) {
         setUser({ id: decoded.id, role: decoded.role });
       }

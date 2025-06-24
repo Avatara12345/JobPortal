@@ -1,11 +1,11 @@
-// app/layout.tsx
+
 "use client";
 import { Toaster } from 'react-hot-toast'
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/navbar'; // We'll create this next
+import Navbar from './components/navbar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
