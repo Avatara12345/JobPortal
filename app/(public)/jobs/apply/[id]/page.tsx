@@ -1,13 +1,13 @@
 "use client";
 		import { useState } from "react";
-		import { useRouter, useParams } from "next/navigation";
+		import { useRouter,  } from "next/navigation";
 		import api from "../../../../lib/axios";
 		import { toast } from "react-hot-toast";
 		import { useAuth } from "../../../../context/AuthContext";
 		import axios from "axios";
 
-		export default function ApplyJobPage() {
-		  const { id } = useParams();
+		export default function ApplyJobPage({ params }: { params: { id: string } }) {
+            const jobId = params.id;
 		  
 		  const router = useRouter();
 		  const { user } = useAuth();
@@ -15,8 +15,8 @@
 		  const [coverLetter, setCoverLetter] = useState("");
 		  const [loading, setLoading] = useState(false);
 
-		  console.log("Rendering ApplyJobPage");
-		console.log("Params:", useParams());
+	
+		
 
 		  const handleSubmit = async (e: React.FormEvent) => {
 		    e.preventDefault();
@@ -32,7 +32,7 @@
 		      await api.post(
 			"/job/application",
 			{
-			  job_id:id,
+			  job_id:jobId,
 			  resume_url: resumeUrl,
 			  cover_letter: coverLetter,
 			},
