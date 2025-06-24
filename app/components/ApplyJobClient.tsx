@@ -1,10 +1,11 @@
 "use client";
+
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { useState } from "react";
 
 export default function ApplyJobClient({ jobId }: { jobId: string }) {
   const router = useRouter();
@@ -42,9 +43,7 @@ export default function ApplyJobClient({ jobId }: { jobId: string }) {
       router.push("/user-dashboard/appliedJobs");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        toast.error(
-          err.response?.data?.message || "Failed to submit application"
-        );
+        toast.error(err.response?.data?.message || "Failed to submit application");
       } else {
         toast.error("An unexpected error occurred");
       }
@@ -57,13 +56,9 @@ export default function ApplyJobClient({ jobId }: { jobId: string }) {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Apply for Job</h1>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="resumeUrl"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="resumeUrl" className="block text-sm font-medium text-gray-700">
               Resume URL
             </label>
             <input
@@ -71,20 +66,14 @@ export default function ApplyJobClient({ jobId }: { jobId: string }) {
               id="resumeUrl"
               value={resumeUrl}
               onChange={(e) => setResumeUrl(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="https://example.com/your-resume.pdf"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              placeholder="https://example.com/resume.pdf"
               required
             />
-            <p className="mt-1 text-sm text-gray-500">
-              Upload your resume to Google Drive and paste link here
-            </p>
           </div>
 
           <div>
-            <label
-              htmlFor="coverLetter"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700">
               Cover Letter
             </label>
             <textarea
@@ -92,8 +81,8 @@ export default function ApplyJobClient({ jobId }: { jobId: string }) {
               rows={6}
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Explain why you're a good fit..."
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              placeholder="Write something..."
               required
             />
           </div>
@@ -102,16 +91,16 @@ export default function ApplyJobClient({ jobId }: { jobId: string }) {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="px-4 py-2 text-white bg-indigo-600 rounded-md disabled:opacity-50"
             >
-              {loading ? "Submitting..." : "Submit Application"}
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
