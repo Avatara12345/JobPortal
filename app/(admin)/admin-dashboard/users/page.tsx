@@ -3,10 +3,10 @@
 
 import { useEffect, useState } from 'react';
 import {  FiRefreshCw } from 'react-icons/fi';
-import { getUserFromLocalStorage } from '@/app/utils/auth';
+import { getUserFromLocalStorage } from '../../../utils/auth';
 import { useRouter } from 'next/navigation';
-import api from '@/app/lib/axios';
-import Loading from '@/app/components/Loading';
+import api from "../../../lib/axios";
+import Loading from '../../../components/Loading';
 interface User {
   id: number;
   name: string;

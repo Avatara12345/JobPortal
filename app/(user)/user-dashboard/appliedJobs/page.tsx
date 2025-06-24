@@ -2,11 +2,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/app/lib/axios";
-import { getUserFromLocalStorage } from "@/app/utils/auth";
+import api from "../../../lib/axios";
+import { getUserFromLocalStorage } from "../../../utils/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/components/Loading";
+import Loading from "../../../components/Loading";
 
 type AppliedJob = {
   id: number;

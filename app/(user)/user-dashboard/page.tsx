@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserFromLocalStorage } from '../../utils/auth';
-import Loading from '@/app/components/Loading';
+import Loading from '../../components/Loading';
 export default function UserDashboard() {
 
   const router = useRouter();

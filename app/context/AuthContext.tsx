@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
-import { decodeJWT } from "@/app/utils/jwt";
+import { decodeJWT } from "../utils/jwt";
 
 type User = {
   id: number;

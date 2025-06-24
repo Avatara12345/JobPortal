@@ -4,9 +4,9 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import {toast, Toaster } from 'react-hot-toast'
 import "react-toastify/dist/ReactToastify.css";
-import { getUserFromLocalStorage } from "@/app/utils/auth";
-import api from "@/app/lib/axios";
-import Loading from "@/app/components/Loading";
+import { getUserFromLocalStorage } from "../../../utils/auth";
+import api from "../../../lib/axios";
+import Loading from "../../../components/Loading";
 
 export default function EditProfile() {
   const router = useRouter();

@@ -1,12 +1,11 @@
 "use client";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../../lib/axios";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import Link from "next/link";
 import { notFound } from 'next/navigation';
-
 
 interface Job {
   id: number;
@@ -32,37 +31,48 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalJobs, setTotalJobs] = useState(0);
   const jobsPerPage = 10;
 
+  // Debounce effect
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get<ApiResponse>(
-          `/jobs/alljobs?search=${searchTerm}&page=${currentPage}&limit=${jobsPerPage}`
-        );
-        
-        setJobs(res.data.jobs);
-        setTotalJobs(res.data.totolJobs);
-        setTotalPages(Math.ceil(res.data.totolJobs / jobsPerPage));
-    } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response?.data?.message || "Failed to fetch jobs");
-        } else {
-          setError("Failed to fetch jobs");
-        }
-        toast.error("Failed to fetch jobs");
-      }
-       finally {
-        setLoading(false);
-      }
-    };
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
 
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [searchTerm]);
+
+  const fetchJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<ApiResponse>(
+        `/jobs/alljobs?search=${debouncedSearchTerm}&page=${currentPage}&limit=${jobsPerPage}`
+      );
+      
+      setJobs(res.data.jobs);
+      setTotalJobs(res.data.totolJobs);
+      setTotalPages(Math.ceil(res.data.totolJobs / jobsPerPage));
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Failed to fetch jobs");
+      } else {
+        setError("Failed to fetch jobs");
+      }
+      toast.error("Failed to fetch jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, debouncedSearchTerm, jobsPerPage]);
+
+  useEffect(() => {
     fetchJobs();
-  }, [currentPage, searchTerm]);
+  }, [fetchJobs]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +103,9 @@ export default function JobsPage() {
       </div>
     );
   }
- if(!jobs) return notFound();
+  
+  if(!jobs) return notFound();
+  
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -130,7 +142,6 @@ export default function JobsPage() {
           </div>
         </form>
 
- 
         <div className="grid gap-6 md:grid-cols-2">
           {jobs.map((job) => (
             <div
