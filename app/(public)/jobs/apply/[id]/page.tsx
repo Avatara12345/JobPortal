@@ -70,7 +70,7 @@ export default function ApplyJobPage() {
               Resume URL
             </label>
             <input
-              type="file"
+              type="text"
               id="resumeUrl"
               value={resumeUrl}
               onChange={(e) => setResumeUrl(e.target.value)}
