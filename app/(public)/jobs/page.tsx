@@ -37,11 +37,10 @@ export default function JobsPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const jobsPerPage = 10;
 
-  // Debounce effect
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500); // 500ms delay
+    }, 500); 
 
     return () => {
       clearTimeout(timerId);
@@ -167,11 +166,11 @@ export default function JobsPage() {
               {user?.role === "user" && (
                 <div className="mt-6 text-right">
                   <Link
-                    href={`/jobs/apply/${job.id}`}
-                    className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
-                  >
-                    Apply Now
-                  </Link>
+                        href={`/jobs/apply/${job.id}`}
+                        className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
+                    >
+                        Apply Now
+                    </Link>
                 </div>
               )}
             </div>
