@@ -2,9 +2,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import api from "../../../lib/axios";
+import api from "../../../../lib/axios";
 import { toast } from "react-hot-toast";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
 
 export default function ApplyJobPage() {

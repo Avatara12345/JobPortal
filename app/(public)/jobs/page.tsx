@@ -166,7 +166,7 @@ export default function JobsPage() {
               {user?.role === "user" && (
                 <div className="mt-6 text-right">
                   <Link
-                        href={`/jobs/${job.id}`}
+                        href={`/jobs/apply/${job.id}`}
                         className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
                     >
                         Apply Now
