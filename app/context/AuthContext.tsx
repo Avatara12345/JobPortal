@@ -19,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+ 
 
   useEffect(() => {
     const token =  localStorage.getItem("token");
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+  
   if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 }

@@ -37,6 +37,7 @@ export default function JobsPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const jobsPerPage = 10;
 
+  
     useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -166,7 +167,8 @@ export default function JobsPage() {
               {user?.role === "user" && (
                 <div className="mt-6 text-right">
                   <Link
-                        href={`/jobs/apply/${job.id}`}
+                       href="/jobs/applyJob"
+                       onClick={() => localStorage.setItem('currentJobId', job.id.toString())}
                         className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
                     >
                         Apply Now
