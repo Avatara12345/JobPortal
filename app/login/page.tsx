@@ -1,5 +1,5 @@
 "use client";
-
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
@@ -28,6 +28,8 @@ export default function LoginPage() {
   const { user, login } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [serverError, setServerError] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -143,15 +145,25 @@ export default function LoginPage() {
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password")}
-              className={`mt-1 block w-full px-4 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400`}
-              placeholder="********"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`mt-1 block w-full px-4 py-2 border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 pr-10`}
+                placeholder="********"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                tabIndex={-1}
+              >
+                {showPassword ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+              </button>
+            </div>
             {errors.password && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.password.message}

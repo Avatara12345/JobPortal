@@ -34,7 +34,7 @@ export default function EditProfile() {
       return;
     }
 
-    setId(user.id); // ✅ Now ID will be properly set
+    setId(user.id); 
 
     const fetchUserData = async () => {
       try {

@@ -37,7 +37,7 @@ export default function JobsPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const jobsPerPage = 10;
 
-  useEffect(() => {
+    useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, 500); 
@@ -75,7 +75,7 @@ export default function JobsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -166,7 +166,7 @@ export default function JobsPage() {
               {user?.role === "user" && (
                 <div className="mt-6 text-right">
                   <Link
-                        href={`/jobs/apply/${job.id}`}
+                        href={`/jobs/${job.id}`}
                         className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
                     >
                         Apply Now

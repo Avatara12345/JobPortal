@@ -7,7 +7,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import axios, { } from "axios";
+import axios from "axios";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const signupSchema = z.object({
   name: z
@@ -37,6 +38,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -55,18 +57,17 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupFormData) => {
     setIsSubmitting(true);
-  
+
     try {
       await api.post("/auth/signup", data);
       toast.success("Signup successful! You can now log in.");
       router.push("/login");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        const errorMessage =
-          err.response?.data?.message || "Signup failed";
+        const errorMessage = err.response?.data?.message || "Signup failed";
         setServerError(errorMessage);
         toast.error(errorMessage);
-  
+
         const fieldErrors = err.response?.data?.errors;
         if (Array.isArray(fieldErrors)) {
           fieldErrors.forEach((error: { path: string[]; message: string }) => {
@@ -137,19 +138,31 @@ export default function SignupPage() {
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>
-            <input
-              type="password"
-              {...register("password")}
-              className={`mt-1 block w-full px-4 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-              placeholder="********"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`mt-1 block w-full px-4 py-2 border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10`}
+                placeholder="********"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                tabIndex={-1}
+              >
+                   {showPassword ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+              </button>
+            </div>
+
             {errors.password && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.password.message}
               </p>
             )}
+
             <div className="mt-2 text-xs text-gray-500">
               <p>Password must contain:</p>
               <ul className="list-disc pl-5">

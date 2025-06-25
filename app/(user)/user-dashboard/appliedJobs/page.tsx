@@ -31,7 +31,7 @@ export default function AppliedJobs() {
     }
   }, [router]);
 
-  // 📦 Fetch applied jobs
+
   useEffect(() => {
     const fetchAppliedJobs = async () => {
       try {
