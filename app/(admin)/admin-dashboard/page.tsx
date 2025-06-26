@@ -1,9 +1,9 @@
 "use client";
+
 import { useDebounce } from "use-debounce";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { getUserFromLocalStorage } from "../../utils/auth";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
+
 import CreateJobForm from "../../components/CreateJobForm";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import SearchBar from "../../components/SearchBar";
@@ -16,119 +16,123 @@ interface Job {
   title: string;
   company: string;
   location: string;
-  salary_range: number; 
+  salary_range: number;
   description: string;
 }
 
 export default function AdminDashboard() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
-  const [state, setState] = useState({
-    jobs: [] as Job[],
-    loading: true,
-    currentPage: 1,
-    totalPages: 1,
-    totalJobs: 0,
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(0);
+
+  const [modalState, setModalState] = useState({
     showCreateForm: false,
     editingJob: null as Job | null,
     selectedJobId: null as number | null,
     isDeleting: false,
   });
 
+  const jobsPerPage = 10;
+  const totalPages = Math.ceil(totalJobs / jobsPerPage);
+
   const fetchJobs = useCallback(async () => {
     try {
-      setState((prev) => ({ ...prev, loading: true }));
+      setLoading(true);
       const token = localStorage.getItem("token") || "";
 
       const res = await fetch(
-        `https://job-portal-rp7w.onrender.com/api/jobs/alljobs?search=${debouncedSearchTerm}&page=${state.currentPage}&limit=10`,
+        `https://job-portal-rp7w.onrender.com/api/jobs/alljobs?search=${debouncedSearchTerm}&page=${currentPage}&limit=${jobsPerPage}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (!res.ok) throw new Error("Failed to fetch jobs");
 
       const data = await res.json();
-      if (!data.jobs) throw new Error("Invalid data format");
+      if (!data.jobs) throw new Error("Invalid response structure");
 
-      setState((prev) => ({
-        ...prev,
-        jobs: data.jobs,
-        totalJobs: data.totolJobs,
-        totalPages: Math.ceil(data.totolJobs / 10),
-        loading: false,
-      }));
-    } catch (error) {
-      console.log(error);
+      setJobs(data.jobs);
+      setTotalJobs(data.totolJobs); 
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to load jobs");
-      setState((prev) => ({ ...prev, loading: false }));
+    } finally {
+      setLoading(false);
     }
-  }, [state.currentPage, debouncedSearchTerm]);
+  }, [currentPage, debouncedSearchTerm]);
 
   useEffect(() => {
-    const user = getUserFromLocalStorage();
-    if (!user || user.role !== "admin") router.push("/login");
-    else fetchJobs();
-  }, [state.currentPage, debouncedSearchTerm, fetchJobs, router]);
+    fetchJobs();
+  }, [fetchJobs]);
 
-  const handleAction = {
-    pageChange: (newPage: number) => {
-      if (newPage >= 1 && newPage <= state.totalPages) {
-        setState((prev) => ({ ...prev, currentPage: newPage }));
-      }
-    },
-    editJob: (job: Job) => {
-      setState((prev) => ({ ...prev, editingJob: job, showCreateForm: true }));
-    },
-    deleteJob: (id: number) => {
-      setState((prev) => ({ ...prev, selectedJobId: id }));
-    },
-    confirmDelete: async () => {
-      if (!state.selectedJobId) return;
-      setState((prev) => ({ ...prev, isDeleting: true }));
-      try {
-        const token = localStorage.getItem("token") || "";
-        const res = await fetch(
-          `https://job-portal-rp7w.onrender.com/api/jobs/job/${state.selectedJobId}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to delete job");
-        toast.success("Job deleted successfully!");
-        fetchJobs();
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to delete job");
-      } finally {
-        setState((prev) => ({
-          ...prev,
-          isDeleting: false,
-          selectedJobId: null,
-        }));
-      }
-    },
-    jobSuccess: () => {
-      setState((prev) => ({
-        ...prev,
-        showCreateForm: false,
-        editingJob: null,
-      }));
-      fetchJobs();
-    },
+  const handleEdit = (job: Job) => {
+    setModalState({
+      ...modalState,
+      showCreateForm: true,
+      editingJob: job,
+    });
   };
 
-  if (state.loading) {
+  const handleDelete = (id: number) => {
+    setModalState({ ...modalState, selectedJobId: id });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!modalState.selectedJobId) return;
+
+    setModalState((prev) => ({ ...prev, isDeleting: true }));
+    try {
+      const token = localStorage.getItem("token") || "";
+      const res = await fetch(
+        `https://job-portal-rp7w.onrender.com/api/jobs/job/${modalState.selectedJobId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+
+      toast.success("Job deleted successfully");
+      fetchJobs();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete job");
+    } finally {
+      setModalState({
+        showCreateForm: false,
+        editingJob: null,
+        selectedJobId: null,
+        isDeleting: false,
+      });
+    }
+  };
+
+  const handleSuccess = () => {
+    setModalState({
+      showCreateForm: false,
+      editingJob: null,
+      selectedJobId: null,
+      isDeleting: false,
+    });
+    fetchJobs();
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  if (loading) {
     return (
       <div className="grid place-items-center min-h-screen">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin h-12 w-12 rounded-full border-t-2 border-b-2 border-indigo-600 mx-auto" />
           <p className="text-gray-600 font-medium">Loading jobs...</p>
         </div>
       </div>
@@ -136,58 +140,79 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-4 max-w-7xl">
+    <div className="container mx-auto  max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
         <p className="text-gray-500 mt-2">Manage all job postings in one place</p>
       </div>
 
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <SearchBar value={searchTerm} onChange={setSearchTerm} onSubmit={(e) => e.preventDefault()} />
+        <SearchBar
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            fetchJobs();
+          }}
+        />
         <button
           onClick={() =>
-            setState((prev) => ({ ...prev, showCreateForm: true, editingJob: null }))
+            setModalState((prev) => ({
+              ...prev,
+              showCreateForm: true,
+              editingJob: null,
+            }))
           }
-          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
         >
-          Create Job
+          + Create Job
         </button>
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatsCard title="Total Jobs" value={state.totalJobs} bg="bg-indigo-100" text="text-indigo-800" />
-        <StatsCard title="Current Page" value={`${state.currentPage}/${state.totalPages}`} bg="bg-blue-100" text="text-blue-800" />
-        <StatsCard title="Showing" value={state.jobs.length} bg="bg-green-100" text="text-green-800" />
+        <StatsCard title="Total Jobs" value={totalJobs} bg="bg-indigo-100" text="text-indigo-800" />
+        <StatsCard title="Page" value={`${currentPage}/${totalPages}`} bg="bg-blue-100" text="text-blue-800" />
+        <StatsCard title="Results" value={jobs.length} bg="bg-green-100" text="text-green-800" />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <JobTable jobs={state.jobs} onEdit={handleAction.editJob} onDelete={handleAction.deleteJob} />
+      {/* Job Table */}
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-6">
+        <JobTable jobs={jobs} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 
-      {state.totalPages > 1 && (
+      {/* Pagination */}
+      {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-medium">{(state.currentPage - 1) * 10 + 1}</span> to
-            <span className="font-medium"> {Math.min(state.currentPage * 10, state.totalJobs)}</span> of
-            <span className="font-medium"> {state.totalJobs}</span> jobs
-          </div>
-          <Pagination currentPage={state.currentPage} totalPages={state.totalPages} onPageChange={handleAction.pageChange} />
+          <p className="text-sm text-gray-600">
+            Showing{" "}
+            <span className="font-medium">{(currentPage - 1) * jobsPerPage + 1}</span> to{" "}
+            <span className="font-medium">{Math.min(currentPage * jobsPerPage, totalJobs)}</span> of{" "}
+            <span className="font-medium">{totalJobs}</span> jobs
+          </p>
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
       )}
 
-      {state.showCreateForm && (
+      {/* Create/Edit Modal */}
+      {modalState.showCreateForm && (
         <CreateJobForm
-          onClose={() => setState((prev) => ({ ...prev, showCreateForm: false }))}
-          onSuccess={handleAction.jobSuccess}
-          initialData={state.editingJob ? { ...state.editingJob, id: String(state.editingJob.id) } : null}
+          onClose={() => setModalState((prev) => ({ ...prev, showCreateForm: false }))}
+          onSuccess={handleSuccess}
+          initialData={
+            modalState.editingJob ? { ...modalState.editingJob, id: String(modalState.editingJob.id) } : null
+          }
         />
       )}
-
-      {state.selectedJobId && (
+      {/* Delete Confirmation */}
+      {modalState.selectedJobId && (
         <ConfirmDeleteModal
-          onClose={() => setState((prev) => ({ ...prev, selectedJobId: null }))}
-          onConfirm={handleAction.confirmDelete}
-          isDeleting={state.isDeleting}
+          onClose={() => setModalState((prev) => ({ ...prev, selectedJobId: null }))}
+          onConfirm={handleConfirmDelete}
+          isDeleting={modalState.isDeleting}
         />
       )}
     </div>

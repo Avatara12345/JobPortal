@@ -1,11 +1,9 @@
-// components/AppliedJobs.tsx
-"use client";
 
+"use client";
 import { useEffect, useState } from "react";
 import api from "../../../lib/axios";
-import { getUserFromLocalStorage } from "../../../utils/auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import Loading from "../../../components/Loading";
 
 type AppliedJob = {
@@ -20,18 +18,6 @@ type AppliedJob = {
 export default function AppliedJobs() {
   const [jobs, setJobs] = useState<AppliedJob[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  // 🛡️ Route protection
-  useEffect(() => {
-    const user = getUserFromLocalStorage();
-    if (!user || (user.role !== "user" && user.role !== "admin")) {
-      router.push("/login");
-    }
-  }, [router]);
-
-
   useEffect(() => {
     const fetchAppliedJobs = async () => {
       try {
@@ -43,7 +29,7 @@ export default function AppliedJobs() {
         setJobs(response.data);
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch applications. Please try again.");
+
       } finally {
         setLoading(false);
       }
@@ -52,9 +38,9 @@ export default function AppliedJobs() {
     fetchAppliedJobs();
   }, []);
 
-  if (loading) return <Loading />;
-  if (error)
-    return <div className="text-red-500 text-center py-8">{error}</div>;
+  if (loading) return <Loading />;  
+//   if (error)
+//     return <div className="text-red-500 text-center py-8">{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,12 +104,6 @@ export default function AppliedJobs() {
                   {job.status || "Applied"}
                 </span>
               </div>
-
-              {/* Optional: Show date
-              <div className="mt-3 text-sm text-gray-500">
-                Applied on: {new Date(job.applicationDate!).toLocaleDateString()}
-              </div> 
-              */}
             </div>
           ))}
         </div>

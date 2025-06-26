@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import {toast, Toaster } from 'react-hot-toast'
 import "react-toastify/dist/ReactToastify.css";
-import { getUserFromLocalStorage } from "../../../utils/auth";
+import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/axios";
 import Loading from "../../../components/Loading";
 
@@ -20,19 +20,21 @@ export default function EditProfile() {
   );
   const [Id, setId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  
+const { user } = useAuth();
 
   const [error, setError] = useState("");
     const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null);
     console.log(resumePreviewUrl)
 
   useEffect(() => {
-    const user = getUserFromLocalStorage();
+    
 
     if (!user || !user.id) {
-      toast.error("User not found. Please login again.");
-      router.push("/login");
-      return;
-    }
+        toast.error("User not found. Please login again.");
+        router.push("/login");
+        return;
+      }
 
     setId(user.id); 
 
@@ -63,14 +65,13 @@ export default function EditProfile() {
     };
 
     fetchUserData();
-  },[router]);
+  },[router,user]);
 
   useEffect(() => {
-    const user = getUserFromLocalStorage();
     if (!user || (user.role !== "user" && user.role !== "admin")) {
       router.push("/login");
     }
-  });
+  }, [user,router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
@@ -277,9 +278,9 @@ export default function EditProfile() {
               </>
             ) : (
               "Save Changes"
-            )}
+            )}  
           </button>
-        </div>
+        </div>  
       </form>
     </div>
   );

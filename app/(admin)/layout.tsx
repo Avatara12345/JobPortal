@@ -18,11 +18,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     Dashboard
                   </Link>
                 </li>
-                {/* <li>
-            <a href="/admin/jobs" className="block px-4 py-2 rounded hover:bg-gray-700">
-              Manage Jobs
-            </a>
-          </li> */}
                 <li>
                   <Link
                     href="/admin-dashboard/users"

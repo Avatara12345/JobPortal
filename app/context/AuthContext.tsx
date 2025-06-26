@@ -1,6 +1,8 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { decodeJWT } from "../utils/jwt";
+import Cookies from "js-cookie";
+
 
 type User = {
   id: number;
@@ -42,10 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    Cookies.remove("token");
     setUser(null);
     window.location.href = "/";
   };
-
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
