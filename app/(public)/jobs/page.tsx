@@ -37,6 +37,7 @@ export default function JobsPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const jobsPerPage = 10;
 
+  
     useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -112,6 +113,8 @@ export default function JobsPage() {
           <h1 className="text-4xl font-bold text-gray-900">Career Opportunities</h1>
           <p className="text-gray-500 mt-4">Find your dream job with top companies</p>
         </div>
+
+        {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-6">
           <div className="relative">
             <input
@@ -164,7 +167,8 @@ export default function JobsPage() {
               {user?.role === "user" && (
                 <div className="mt-6 text-right">
                   <Link
-                        href={`/jobs/apply/${job.id}`}
+                       href="/jobs/applyJob"
+                       onClick={() => localStorage.setItem('currentJobId', job.id.toString())}
                         className="inline-block bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-indigo-700 transition"
                     >
                         Apply Now
@@ -175,6 +179,7 @@ export default function JobsPage() {
           ))}
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-gray-600">
